@@ -1,0 +1,5 @@
+requests
+gnupg
+hvac
+keybase-api
+pyyaml

@@ -1,0 +1,21 @@
+#!/bin/sh
+
+set -e
+
+problems() {
+    echo "Error: ${1}"
+    exit 1
+}
+
+if [ ! -e "/.proprieclerc" ] ; then
+    problems "Config file missing"
+fi
+
+if [ ! -d "/.propriecle" ] ; then
+    problems "Config directory missing"
+fi
+
+export PROPRIECLE_CONFIG="/.proprieclerc"
+export PROPRIECLE_DIRECTORY="/.propriecle"
+
+propriecle $*
