@@ -13,6 +13,7 @@ if not os.path.exists(vsn_path):
         print("%s is missing" % vsn_path)
         sys.exit(1)
 
+
 setup(name='propriecle',
       version=open(vsn_path, 'r').read(),
       description='something something vault master keys',
