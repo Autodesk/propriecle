@@ -1,0 +1,16 @@
+script: if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then make test package
+  ; else make test ; fi
+sudo: false
+language: python
+services:
+- docker
+deploy:
+  skip_cleanup: true
+  provider: pypi
+  user: otakup0pe
+  on:
+    tags: true
+    all_branches: true
+    repo: Autodesk/propriecle
+  password:
+    secure: bkk+0FpHJUd+YrdSBkLysrnOUp7nVgYxWSfbYpXRXUagmWRQrRieN5RIqWfCLDC70tkzzI8tIYvtjFdW1cDKl0bDShbazNhinsMCD/OiRpsvSUj1uRxCDySAdAEqdzY20/fuExQC4gYKQenmWhw+jjd8HKa9cIaOQb8hn/KtoJaN2/7OVDraIjCnnNCQPoEZij8NOouPK3wh8tDlHdN4SADodigbN4Pqzsqs4DF8y2XqMZ7a8ft5MRMnZEQOEyX0DbNB41Hkd9LSYteOrgOeNpGziprhxxYR2kg/BV9HbVREzvjNxVybL9SHwENV64UKBd7hD+zodTnqiPF+/FbrGSalTFa0m97ndF2+odqg3aliTFpWS9YsMG2AvQ2Nz/bTWHvx6sgztKZL1r8yWK0bmi9CSOZ2F9+YLbjMJDdUhqvql1jBzPLjOFPE74qUixO3MBfrEEuojyCnixapMwW59at8cMzGrAq7RKiHa+E4IBSdPULdUPWYlAAl/0+7xYu0MQg++ybZeW4CeeWefHmdSWWBuGEtDcOuIoy3t/w6kYmqAmTlDO6W+FslSnMUrkCOMaFr8dhDkaLhC02hTSm5JXkRLuPh9D6rqu3nRXCTzXk58O+Xuj/Zc8MA1oYX8M8SAQ2O4PPF3Sew9dDWjsqrtrCkMCWr6Pk5j0WsL4ZWdWA=

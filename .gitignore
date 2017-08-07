@@ -1,2 +1,7 @@
 *.pyc
+*.pyo
+dist
+build
 propriecle.egg-info/
+propriecle/version
+.ci-env
