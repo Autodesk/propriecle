@@ -16,4 +16,4 @@ version:
 package: version
 	python setup.py sdist
 
-.PHONY: test
+.PHONY: test package version testenv
