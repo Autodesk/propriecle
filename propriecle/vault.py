@@ -57,7 +57,7 @@ def root_client(server):
     if not root_token:
         return
     else:
-        client.token = root_token
+        setattr(client, 'token', root_token)
 
     if not am_root(client):
         return None
@@ -87,10 +87,10 @@ def get_vault(server):
     token_file = "%s/.vault-token" % os.environ['HOME']
     if 'VAULT_TOKEN' in os.environ and\
        os.environ['VAULT_TOKEN']:
-        client.token = os.environ['VAULT_TOKEN']
+        setattr(client, 'token', os.environ['VAULT_TOKEN'])
     elif os.path.exists(token_file):
         handle = open(token_file, 'r')
-        client.token = handle.read().strip()
+        setattr(client, 'token', handle.read().strip())
         handle.close()
 
     return client

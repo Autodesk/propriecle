@@ -325,8 +325,10 @@ def focus_input(screen, server):
             ch_s = chr(ch).lower()
             is_init = server['init']
             is_sealed = server['sealed']
-            is_leader = server['leader']
-            is_ha = server['ha']
+            is_ha = server['ha']            
+            if is_ha:
+                is_leader = server['leader']
+
             is_rekey = server['rekey']
             is_regenerating = server['regenerating']
             if ch_s == 's' and is_init and not is_sealed:
