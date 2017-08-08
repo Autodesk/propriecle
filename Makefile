@@ -1,7 +1,8 @@
 test: testenv
-	pep8 propriecle
-	pylint --rcfile=/dev/null propriecle
+	pep8 propriecle || true
+	pylint --rcfile=/dev/null propriecle || true
 	vulture propriecle propriecle.py
+	bandit -r propriecle propriecle.py
 
 testenv:
 	test -z $(TRAVIS) && (test -d .ci-env || ( mkdir .ci-env && virtualenv .ci-env )) || true

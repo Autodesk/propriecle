@@ -2,7 +2,7 @@
 import sys
 import os
 import time
-import random
+from random import SystemRandom
 import curses
 import traceback
 import requests
@@ -224,7 +224,7 @@ def refresh_initialized(main_win, server, index, selected):
 def randcolor():
     """A random pretty color plz"""
     s_color = 0
-    s_rand = random.randint(0, 2)
+    s_rand = SystemRandom().randint(0, 2)
     if s_rand == 0:
         s_color = 1
     elif s_rand == 1:
@@ -232,7 +232,7 @@ def randcolor():
     elif s_rand == 2:
         s_color = 7
 
-    if random.randint(0, 1) == 1:
+    if SystemRandom().randint(0, 1) == 1:
         s_color = s_color | curses.A_BOLD
 
     return s_color
@@ -260,7 +260,7 @@ def refresh_uninitialized(main_win, server, selected, index):
         string_at(main_win,
                   line,
                   base_x + len(new_msg) + 2 + f,
-                  s_anim[random.randint(0, len(s_anim) - 1)],
+                  s_anim[SystemRandom().randint(0, len(s_anim) - 1)],
                   curses.color_pair(randcolor()))
 
 
@@ -322,44 +322,43 @@ def focus_input(screen, server):
 
     if 'init' in server:
         if 255 > ch > 0:
-            if chr(ch).lower() == 's' and server['init'] \
-               and not server['sealed']:
-                if not server['ha'] or (server['ha'] and server['leader']):
+            ch_s = chr(ch).lower()
+            is_init = server['init']
+            is_sealed = server['sealed']
+            is_leader = server['leader']
+            is_ha = server['ha']
+            is_rekey = server['rekey']
+            is_regenerating = server['regenerating']
+            if ch_s == 's' and is_init and not is_sealed:
+                if not is_ha or (is_ha and is_leader):
                     do_seal(screen, server)
-            elif chr(ch).lower() == 'u' and server['init'] and server['sealed']:
+            elif ch_s == 'u' and is_init and is_sealed:
                 do_unseal(screen, server)
-            elif chr(ch).lower() == 'r' and server['init'] and \
-                not server['sealed'] and not server['rekey']:
+            elif ch_s == 'r' and is_init and not is_sealed and not is_rekey:
                 do_rekey(server)
-            elif chr(ch).lower() == 'i' and not server['init']:
+            elif ch_s == 'i' and not is_init:
                 do_init(screen, server)
-            elif chr(ch).lower() == 'e' and server['init'] and \
-                 server['rekey']:
+            elif ch_s == 'e' and is_init and is_rekey:
                 do_rekey_enter(screen, server)
-            elif chr(ch).lower() == 'c' and server['init'] and \
-                 server['rekey']:
+            elif ch_s == 'c' and is_init and is_rekey:
                 if not rekey_cancel(server):
                     popup(screen, "Unable to cancel rekey")
-            elif chr(ch).lower() == 'e' and server['init'] and \
-                 server['regenerating']:
+            elif ch_s == 'e' and is_init and is_regenerating:
                 do_regenerate_enter(screen, server)
-            elif chr(ch).lower() == 'c' and server['init'] and \
-                 server['regenerating']:
+            elif ch_s == 'c' and is_init and is_regenerating:
                 if not regenerate_cancel(server):
                     popup(screen, "Unable to cancel regeneration")
-            elif chr(ch).lower() == 'o' and server['init'] and \
-                 not server['rekey'] and \
-                 not server['regenerating'] and \
-                 not server['sealed']:
+            elif ch_s == 'o' and is_init and not is_rekey and \
+                 not is_regenerating and not is_sealed:
                 if not rotate_master(server):
                     popup(screen, "Unable to rotate master")
-            elif chr(ch).lower() == 'g' and server['init'] and \
-                 not server['rekey'] and \
-                 not server['regenerating'] and \
-                 not server['sealed']:
+            elif ch_s == 'g' and is_init and \
+                 not is_rekey and \
+                 not is_regenerating and \
+                 not is_sealed:
                 regenerate_start(server)
-            elif chr(ch).lower() == 'p' and server['init'] and \
-                 server['ha'] and server['leader']:
+            elif ch_s == 'p' and is_init and \
+                 is_ha and is_leader:
                 step_down(server)
 
 

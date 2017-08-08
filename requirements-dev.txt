@@ -1,2 +1,4 @@
 pep8
 pylint
+bandit
+vulture
