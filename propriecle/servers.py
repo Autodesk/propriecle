@@ -112,6 +112,7 @@ def fetch_server(client, server):
                     pass
 
             server_obj['ha'] = False
+            server_obj['leader'] = False
             try:
                 leader_obj = client.read('sys/leader')
                 server_obj['ha'] = leader_obj['ha_enabled']

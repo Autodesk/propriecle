@@ -42,7 +42,8 @@ def seal(server):
     """Seals the Vault server. Requires the use of a root token"""
     client = root_client(server)
     if client:
-        if server['leader']:
+        # can't seal a leader but you can if it's not ha
+        if server['leader'] or not server['ha']:
             client.seal()
 
         return True
@@ -80,9 +81,14 @@ def am_root(client):
 
 def get_vault(server):
     """Manifests an hvac Vault Client object"""
+    verify_tho = server.get('tls_verify', True)
+    if not verify_tho:  # :(
+        import urllib3
+        urllib3.disable_warnings()
+
     client = hvac.Client(server['url'],
                          timeout=5,
-                         verify=server.get('tls_verify', True))
+                         verify=verify_tho)
 
     token_file = "%s/.vault-token" % os.environ['HOME']
     if 'VAULT_TOKEN' in os.environ and\
@@ -145,7 +151,13 @@ def regenerate_enter(server, key):
         'key': key,
         'nonce': regen_obj['nonce']
     }
-    resp = client.write("sys/generate-root/update", **obj)
+    try:
+        resp = client.write("sys/generate-root/update", **obj)
+    except hvac.exceptions.InvalidRequest as vault_exception:
+        # eventual consistency fallout
+        if vault_exception.errors[0] == 'no root generation in progress':
+            return True
+
     if 'complete' not in resp:
         return False
 

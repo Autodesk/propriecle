@@ -5,3 +5,7 @@ build
 propriecle.egg-info/
 propriecle/version
 .ci-env
+.bats
+.bats-git
+.vault
+.coverage
