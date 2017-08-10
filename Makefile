@@ -5,7 +5,7 @@ test: testenv
 	vulture propriecle propriecle.py
 	bandit -r propriecle propriecle.py
 	test -z $(TRAVIS) && (./scripts/integration) || true
-	coverage report -m
+	coverage report -m || true # throws errors when empty
 	coverage erase
 
 testenv:
