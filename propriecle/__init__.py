@@ -174,14 +174,15 @@ def refresh_screen(screen, selection, main_win=None):
     middle_y, middle_x = middle_yx(screen)
     if not main_win:
         main_win = curses.newwin(main_y, main_x,
-                                 middle_y - (main_y/2),
-                                 middle_x - (main_x/2))
+                                 int(round(middle_y - (main_y/2))),
+                                 int(round(middle_x - (main_x/2))))
     else:
         main_win.erase()
 
     main_win.bkgd(ord(' '), curses.color_pair(1))
     main_win.border()
-    string_at(main_win, 1, 0, "Vault Friends", curses.color_pair(1), 'center')
+    string_at(main_win, 1, 0, conf.get("title", "Vault Friends"),
+              curses.color_pair(1), 'center')
     refresh_status(main_win, selection)
     screen.nooutrefresh()
     main_win.nooutrefresh()
@@ -324,13 +325,15 @@ def focus_input(screen, server):
         if 255 > ch > 0:
             ch_s = chr(ch).lower()
             is_init = server['init']
-            is_sealed = server['sealed']
-            is_ha = server['ha']            
-            if is_ha:
-                is_leader = server['leader']
+            if is_init:
+                is_sealed = server['sealed']
+                if not is_sealed:
+                    is_rekey = server['rekey']
+                    is_regenerating = server['regenerating']            
+                    is_ha = server['ha']            
+                    if is_ha:
+                        is_leader = server['leader']
 
-            is_rekey = server['rekey']
-            is_regenerating = server['regenerating']
             if ch_s == 's' and is_init and not is_sealed:
                 if not is_ha or (is_ha and is_leader):
                     do_seal(screen, server)

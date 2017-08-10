@@ -32,6 +32,20 @@ def cli_unseal(name):
         unseal(client, key_obj['key'])
 
 
+def cli_unseal_all():
+    """Attempts to submit every available unseal key for each
+    Vault instance in order"""
+    
+    for name in [x['name'] for x in conf.get('vaults')]:
+        cli_unseal(name)
+
+
+def cli_seal_all():
+    """Seals every accessible Vault instance"""
+    for name in [x['name'] for x in conf.get('vaults')]:
+        seal(get_server(name))
+
+
 def cli_init(name):
     """Initializes Vault on the specified instance"""
     server = get_server(name)
@@ -130,8 +144,12 @@ def main():
         gui()
     elif len(sys.argv) == 3 and sys.argv[1] == "unseal":
         cli_unseal(sys.argv[2])
+    elif len(sys.argv) == 2 and sys.argv[1] == "unseal":
+        cli_unseal_all()
     elif len(sys.argv) == 3 and sys.argv[1] == "seal":
         cli_seal(sys.argv[2])
+    elif len(sys.argv) == 2 and sys.argv[1] == "seal":
+        cli_seal_all()
     elif len(sys.argv) == 3 and sys.argv[1] == "init":
         cli_init(sys.argv[2])
     elif len(sys.argv) == 3 and sys.argv[1] == "step_down":

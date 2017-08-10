@@ -16,8 +16,8 @@ It is possible to run propricle both interactively and as a scriptable command l
 
 Non interactive mode makes use of the same environment variables and encapsulates what is available via the gui, plus a few other options. Each operation takes a single argument of a Vault instance name (as specified in the configuration file).
 
-* `unseal` will attempt to use every applicable key to unseal the vault instance
-* `seal` will make use of the root token to seal the vault instance
+* `unseal` will attempt to use every applicable key to unseal the specified vault instance. If you do not specify an instance then it will attempt to unseal _everything_.
+* `seal` will make use of the root token to seal the specified Vault instance. If you do not specify an instance then it will seal _everything_.
 * `init` will initialize a fresh vault instance, properly storing the encrypted root and unseal keys
 * `step_down` will ask a vault ha leader to step down and become standby
 * `root_get` will print the root token to stdout

@@ -1,5 +1,6 @@
 # -*-YAML-*-
 root_key: "keybase:otakup0pe"
+title: "propriecle smoke tests"
 keys:
 - "keybase:otakup0pe"
 - "keybase:otakup0pe"
@@ -9,3 +10,6 @@ backup: true
 vaults:
 - name: "local1"
   url: "http://127.0.0.1:8200/"
+- name: "local2"
+  url: "http://127.0.0.1:8201/"
+  parent: "local1"
