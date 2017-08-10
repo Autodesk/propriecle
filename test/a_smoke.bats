@@ -21,7 +21,6 @@ teardown() {
     [ "$status" -eq 0 ]
     run_propriecle seal local1
     sleep 5 # wait for it
-    cat "$VAULT_LOG"
     run vault mounts
     [ "$status" -eq 2 ]
 }
