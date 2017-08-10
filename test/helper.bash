@@ -6,8 +6,7 @@ function start_vault() {
     if [ -e "${HOME}/.vault-token" ] ; then
         mv "${HOME}/.vault-token" "${BATS_TMPDIR}/og-token"
     fi
-    nohup vault server -config "${FIXTURE_DIR}/vault.json" &> "$VAULT_LOG" &
-    cat "$VAULT_LOG"
+    nohup vault server -config "${FIXTURE_DIR}/vault.json" &
     if ! pgrep vault &> /dev/null ; then
         stop_vault
         start_vault
