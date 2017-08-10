@@ -151,7 +151,13 @@ def regenerate_enter(server, key):
         'key': key,
         'nonce': regen_obj['nonce']
     }
-    resp = client.write("sys/generate-root/update", **obj)
+    try:
+        resp = client.write("sys/generate-root/update", **obj)
+    except hvac.exceptions.InvalidRequest as vault_exception:
+        # eventual consistency fallout
+        if vault_exception.errors[0] == 'no root generation in progress':
+            return True
+
     if 'complete' not in resp:
         return False
 
