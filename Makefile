@@ -1,8 +1,12 @@
 test: testenv
+	coverage erase
 	pep8 propriecle || true
 	pylint --rcfile=/dev/null propriecle || true
 	vulture propriecle propriecle.py
 	bandit -r propriecle propriecle.py
+	./scripts/integration
+	coverage report -m
+	coverage erase
 
 testenv:
 	test -z $(TRAVIS) && (test -d .ci-env || ( mkdir .ci-env && virtualenv .ci-env )) || true

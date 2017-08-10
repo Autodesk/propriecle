@@ -18,7 +18,7 @@ Non interactive mode makes use of the same environment variables and encapsulate
 
 * `unseal` will attempt to use every applicable key to unseal the vault instance
 * `seal` will make use of the root token to seal the vault instance
-* `init` will initialize a fresh vault instance, properly encrypting the root and unseal keys
+* `init` will initialize a fresh vault instance, properly storing the encrypted root and unseal keys
 * `step_down` will ask a vault ha leader to step down and become standby
 * `root_get` will print the root token to stdout
 * `rekey_start` will begin the process of rekeying unseal keys

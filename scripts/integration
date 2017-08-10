@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+
+set -e
+
+# These path variables are used in this script and within
+# the BATS execution context.
+SCRIPTDIR="$( cd "${0%/*}" && pwd)"
+ROOTDIR=${SCRIPTDIR%/*}
+export CIDIR="$ROOTDIR"
+BATSGIT="${ROOTDIR}/.bats-git"
+BATSBIN="${ROOTDIR}/.bats"
+VAULTDIR="${ROOTDIR}/.vault"
+VAULTBIN="${VAULTDIR}/vault"
+
+# Default to a unreasonably old version of HCV because reasons.
+if [ -z "$VAULT_VERSION" ] ; then
+    VAULT_VERSION="0.7.3"
+fi
+
+# Ensure the BATS shell script test framework is installed.
+if [ ! -d "$BATSGIT" ] ; then
+    git clone --depth 1 https://github.com/sstephenson/bats.git "$BATSGIT"
+fi
+if [ ! -d "$BATSBIN" ] ; then
+    cd "$BATSGIT"
+    ./install.sh "$BATSBIN"
+fi
+
+# Fetch our requisite version of HCVault. Yeah that's
+# right, only testable on mac/linux right now.
+if [ ! -d "$VAULTDIR" ] ; then
+    mkdir -p "$VAULTDIR"
+    OS=$(uname -s)
+    if [ "$OS" == "Darwin" ] ; then
+        URL="https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_darwin_amd64.zip"
+    elif [ "$OS" == "Linux" ] ; then
+        URL="https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_linux_amd64.zip"
+    fi
+
+    wget -O  "/tmp/vault.zip"  "$URL"
+    unzip -d "$VAULTDIR" "/tmp/vault.zip"
+    rm -f "/tmp/vault.zip"
+    chmod +x "$VAULTBIN"
+fi
+PATH="${VAULTDIR}:${PATH}"
+VAULTPATH=$(which vault)
+if [ -z "$VAULTPATH" ] ; then
+    echo "Unable to find vault executable"
+    exit 1
+fi
+if [ -z "$VIRTUAL_ENV" ] && [ -z "$TRAVIS" ] ; then
+    . "${ROOTDIR}/.ci-env/bin/activate"
+fi
+
+echo "Testing with ${VAULTPATH} v${VAULT_VERSION}"
+export PATH
+"${ROOTDIR}/.bats/bin/bats" "${ROOTDIR}/test/a_smoke.bats"

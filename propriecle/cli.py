@@ -1,13 +1,16 @@
 """CLI Entrypoint"""
 
 import sys
+from getpass import getpass
+import cryptorito
 from propriecle import gui
-from propriecle.helpers import problems
+from propriecle.helpers import problems, do_write
 from propriecle.servers import get_server
 from propriecle.vault import unseal, init, seal, step_down, rekey_start, \
     rekey_enter, rekey_cancel, regenerate_start, regenerate_enter, \
     regenerate_cancel
 from propriecle.keys import list_keys, get_root_token, grok_keys
+from propriecle.filez import root_file_name, unseal_file_name
 import propriecle.conf as conf
 
 
@@ -94,6 +97,33 @@ def cli_rekey_cancel(name):
     sys.exit(0)
 
 
+def cli_root_import(name):
+    """Imports a plaintext root token and will encrypt
+    according to the propriecle configuration."""
+    server = get_server(name)
+    root_token = getpass('Root Token: ', stream=sys.stderr)
+    if not root_token:
+        problems("Must specify a token")
+
+    root_key = conf.get('root_key')
+    key_id = cryptorito.key_from_keybase(root_key[8:])['fingerprint']
+    encrypted = cryptorito.portable_b64encode(cryptorito.encrypt_var(root_token, [key_id]))
+    do_write(encrypted, root_file_name(server))
+
+def cli_unseal_import(name, s_slot):
+    """Imports a unseal key at a spcified slot and will
+    encrypt accordign to the propriecle configuration."""
+    slot = int(s_slot) 
+    server = get_server(name)
+    unseal_key = getpass('Unseal Key: ', stream=sys.stderr)
+    if not unseal_key:
+        problems("Must specify a unseal key")
+
+    a_key = conf.get('keys')[slot - 1]
+    key_id = cryptorito.key_from_keybase(a_key[8:])['fingerprint']
+    encrypted = cryptorito.portable_b64encode(cryptorito.encrypt_var(unseal_key, [key_id]))
+    do_write(encrypted, unseal_file_name(server, slot))
+
 def main():
     """Entrypoint Actual"""
     if len(sys.argv) == 1:
@@ -120,5 +150,9 @@ def main():
         cli_regenerate_auth(sys.argv[2])
     elif len(sys.argv) == 3 and sys.argv[1] == "regenerate_cancel":
         cli_regenerate_cancel(sys.argv[2])
+    elif len(sys.argv) == 3 and sys.argv[1] == 'root_import':
+        cli_root_import(sys.argv[2])
+    elif len(sys.argv) == 4 and sys.argv[1] == 'unseal_import':
+        cli_unseal_import(sys.argv[2], sys.argv[3])
     else:
         sys.exit(1)
