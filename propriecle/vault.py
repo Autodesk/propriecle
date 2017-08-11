@@ -1,5 +1,6 @@
 """Low level Vault interactions"""
 import os
+import requests
 import hvac
 import hvac.exceptions
 from propriecle.helpers import do_write
@@ -70,7 +71,7 @@ def am_root(client):
     """Determines if a vault client is root or not"""
     try:
         token = client.lookup_token()
-    except hvac.exceptions.VaultDown:
+    except (hvac.exceptions.VaultDown, requests.exceptions.ReadTimeout):
         return False
 
     if 'data' in token and 'policies' in token['data']:

@@ -86,7 +86,11 @@ def fetch_server(client, server):
 
     server_obj['init'] = init
     if init:
-        status = client.seal_status
+        try:
+            status = client.seal_status
+        except (hvac.exceptions.VaultDown, requests.exceptions.ReadTimeout):
+            return server_obj
+
         server_obj['version'] = status['version']
         seal = server_obj['sealed'] = status['sealed']
         if seal:
@@ -104,7 +108,7 @@ def fetch_server(client, server):
                     server_obj['rekey_backup'] = rekey_obj['backup']
                     server_obj['rekey_progress'] = rekey_obj['progress']
                     server_obj['rekey_required'] = rekey_obj['required']
-            except hvac.exceptions.VaultDown:
+            except (hvac.exceptions.VaultDown, requests.exceptions.ReadTimeout):
                 pass
             except hvac.exceptions.InternalServerError as vault_exception:
                 if vault_exception.message == 'node not active but active '\
@@ -118,7 +122,7 @@ def fetch_server(client, server):
                 server_obj['ha'] = leader_obj['ha_enabled']
                 if leader_obj['ha_enabled']:
                     server_obj['leader'] = leader_obj['is_self']
-            except hvac.exceptions.VaultDown:
+            except (hvac.exceptions.VaultDown, requests.exceptions.ReadTimeout):
                 pass
             except hvac.exceptions.InternalServerError as e:
                 if e.message == 'node not active but active node not found':
@@ -132,7 +136,7 @@ def fetch_server(client, server):
                     if server_obj['regenerating']:
                         server_obj['regen_progress'] = regen_obj['progress']
                         server_obj['regen_required'] = regen_obj['required']
-                except hvac.exceptions.VaultDown:
+                except (hvac.exceptions.VaultDown, requests.exceptions.ReadTimeout):
                     pass
                 except hvac.exceptions.InternalServerError as e:
                     if e.message == 'node not active but ' \
@@ -146,7 +150,7 @@ def fetch_server(client, server):
                     key_obj = client.key_status
                     server_obj['key_term'] = key_obj['term']
                     server_obj['is_root'] = True
-                except hvac.exceptions.VaultDown:
+                except (hvac.exceptions.VaultDown, requests.exceptions.ReadTimeout):
                     pass
                 except hvac.exceptions.InternalServerError as e:
                     if e.message == 'node not active but active '\
