@@ -1,7 +1,9 @@
 """CLI Entrypoint"""
 
+import os
 import sys
 from getpass import getpass
+import logging
 import cryptorito
 from propriecle import gui
 from propriecle.helpers import problems, do_write
@@ -12,7 +14,7 @@ from propriecle.vault import unseal, init, seal, step_down, rekey_start, \
 from propriecle.keys import list_keys, get_root_token, grok_keys
 from propriecle.filez import root_file_name, unseal_file_name
 import propriecle.conf as conf
-
+LOG = logging.getLogger(__name__)
 
 def cli_root(name):
     """Prints the decrypted root token to stdout"""
@@ -35,7 +37,7 @@ def cli_unseal(name):
 def cli_unseal_all():
     """Attempts to submit every available unseal key for each
     Vault instance in order"""
-    
+
     for name in [x['name'] for x in conf.get('vaults')]:
         cli_unseal(name)
 
@@ -127,7 +129,7 @@ def cli_root_import(name):
 def cli_unseal_import(name, s_slot):
     """Imports a unseal key at a spcified slot and will
     encrypt accordign to the propriecle configuration."""
-    slot = int(s_slot) 
+    slot = int(s_slot)
     server = get_server(name)
     unseal_key = getpass('Unseal Key: ', stream=sys.stderr)
     if not unseal_key:
@@ -138,9 +140,22 @@ def cli_unseal_import(name, s_slot):
     encrypted = cryptorito.portable_b64encode(cryptorito.encrypt_var(unseal_key, [key_id]))
     do_write(encrypted, unseal_file_name(server, slot))
 
+
 def main():
     """Entrypoint Actual"""
+    if os.environ.get('PROPRIECLE_LOG'):
+        logging.basicConfig(level=logging.DEBUG)
+
+    root_log = logging.getLogger()
+    logfile = "%s/propriecle.log" % os.environ.get('PROPRIECLE_LOG_PATH', os.getcwd())
+    if os.path.exists(logfile):
+        os.remove(logfile)
+
+    file_handler = logging.FileHandler(logfile)
     if len(sys.argv) == 1:
+        root_log.handlers = []
+        root_log.addHandler(file_handler)
+        LOG.debug("with %s handlers", len(root_log.handlers))
         gui()
     elif len(sys.argv) == 3 and sys.argv[1] == "unseal":
         cli_unseal(sys.argv[2])

@@ -9,3 +9,4 @@ propriecle/version
 .bats-git
 .vault
 .coverage
+propriecle.log

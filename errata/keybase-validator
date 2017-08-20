@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+# Something simple until the logic for this is added to cryptorito
+# This script will  try and show you a picture of the Keybase user in question
+# and confirm the various proofs which they have setup. It will then pause
+# for confirmation, and then if allowed, and the users primary GPG key
+# is present, will update the trust to full and sign the key.
+set -eu
+
+# Quickly and easily exit
+problems() {
+    echo "$*"
+    exit 1
+}
+
+# Check for dependencies
+for d in gpg keybase curl jq ; do
+    if ! which "$d" &> /dev/null ; then
+        problems "dependency ${d} not found"
+    fi
+done
+
+USER="$1"
+if [ -z "$USER" ] ; then
+    problems "must specify a Keybase user"
+fi
+OS=$(uname -s)
+KB=$(curl -s "https://keybase.io/_/api/1.0/user/lookup.json?usernames=${USER}")
+# Attempt to show a picture. We only know how to do this on a mac.
+if  [ "$OS" == "Darwin" ] ; then
+    PHOTO_URL=$(jq -Mr '.them[0].pictures.primary.url' <<< "$KB")    
+    if [ -z "$PHOTO_URL" ] || [ "$PHOTO_URL" == "null" ] ; then
+        echo "${USER} has no photo!"
+    else
+        if [ "$TERM_PROGRAM" == "iTerm.app" ] && \
+               which imgcat &> /dev/null ; then
+            curl -s "$PHOTO_URL" | imgcat
+        else
+            open "$PHOTO_URL"
+        fi
+    fi
+else
+    echo "Don't know how to display a photo on ${OS}"
+    echo "You should check on the Keybase web site"
+    echo "https://keybase.io/${USER}"
+fi
+keybase id "$USER"
+echo "Does the above seem OK?"
+echo "yes/no"
+read -r VAL
+if [ "$VAL" != "yes" ] ; then
+    problems "OK, quitting"
+fi
+# Check and optionally trust/sign the public key
+PKEY=$(jq -Mr '.them[0].public_keys.primary.key_fingerprint' <<< "$KB" | tr '[:lower:]' '[:upper:]')
+if [ -z "$PKEY" ] ; then
+    problems "Invalid primary key"
+fi
+if ! gpg --list-keys | grep "$PKEY" &> /dev/null ; then
+    problems "Public key ${PKEY} has not been imported"
+fi
+# We make an assumption here that if it's not trusted it's not signed either
+if gpg --list-keys | grep -A 2 "$PKEY" | grep '\[  full  \]' &> /dev/null ; then
+    echo "already trusted"
+    exit 0
+fi
+# This seems to be appropriate settings for the sort of keys that
+# belong to the sort of people with whom you may be sharing
+# the sort of data that propriecle is meant to manage.
+gpg --import-ownertrust <<< "${PKEY}:5"
+gpg --edit-key "$PKEY" sign save

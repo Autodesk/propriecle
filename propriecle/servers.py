@@ -132,7 +132,7 @@ def fetch_server(client, server):
                (server_obj['ha'] and server_obj['leader']):
                 try:
                     regen_obj = client.read('sys/generate-root/attempt')
-                    server_obj['regenerating'] = regen_obj['started']
+                    server_obj['regenerating'] = regen_obj.get('started', False)
                     if server_obj['regenerating']:
                         server_obj['regen_progress'] = regen_obj['progress']
                         server_obj['regen_required'] = regen_obj['required']

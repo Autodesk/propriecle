@@ -1,6 +1,8 @@
 # Propriétaire de la Clé ; The Key Owner
 
-This tool provides safe interaction patterns around interactions with Vault master key concepts. As of now, it provides a Python/ncurses interface around the following operations
+![Work In Progress](https://github.com/Autodesk/propriecle/blob/master/docs/construction.gif)
+
+This tool is still in an early stage. If you want to play with it, enabling backups during rekey and  regeneration operations is probably wise. This tool, `propriecle`, facilitates safe interaction patterns for Vault master key concepts. As of now, it provides both an interactive and non interactive interface around the following operations
 
 * Initializing a fresh Vault instance with GPG protected root and unseal keys
 * Sealing of a Vault instance using a GPG protected root key
@@ -9,6 +11,8 @@ This tool provides safe interaction patterns around interactions with Vault mast
 * Rotation of the master key
 * Regeneration of a new GPG protected root key
 * Stepping down of a HA Leader server
+
+The GPG keys may be derived from Keybase. At this point, validation is _not_ done at time of import. For the smoothest experience you should validate it out of band. The [`keybase-validator`](https://github.com/Autodesk/propriecle/blob/master/errata/keybase-validator) script _might_ help.
 
 ## Running
 

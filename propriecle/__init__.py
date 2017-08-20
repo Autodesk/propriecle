@@ -1,25 +1,21 @@
 """Propriecle grab bag"""
 import sys
-import os
-import time
 from random import SystemRandom
 import curses
+import logging
 import traceback
-import requests
 import hvac
-import yaml
-from hashlib import sha256
-from propriecle.ui import string_at, middle_yx, pulse, yesno, \
+from propriecle.ui import string_at, middle_yx, yesno, \
     popup, init_screen, ask_for
-from propriecle.helpers import problems, do_write, finish
-from propriecle.vault import seal, unseal, am_root, root_client, \
+from propriecle.helpers import problems, finish
+from propriecle.vault import seal, unseal, \
     rekey_start, rotate_master, regenerate_start, init, \
     regenerate_enter, regenerate_cancel, rekey_enter, rekey_cancel, \
     step_down
-from propriecle.keys import list_keys, grok_keys, grok_key
+from propriecle.keys import list_keys, grok_keys
 from propriecle.servers import get_server
 import propriecle.conf as conf
-
+LOG = logging.getLogger(__name__)
 
 def update_servers():
     """Kicks off the update process for our Vault servers"""
@@ -32,7 +28,6 @@ def update_servers():
 
 def do_seal(screen, server):
     """Invoke the GUI action of sealing Vault"""
-    client = server['client']
     name = server['name']
 
     seal_msg = "SEAL %s" % name
@@ -329,8 +324,8 @@ def focus_input(screen, server):
                 is_sealed = server['sealed']
                 if not is_sealed:
                     is_rekey = server['rekey']
-                    is_regenerating = server['regenerating']            
-                    is_ha = server['ha']            
+                    is_regenerating = server['regenerating']
+                    is_ha = server['ha']
                     if is_ha:
                         is_leader = server['leader']
 
