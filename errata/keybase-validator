@@ -1,9 +1,13 @@
 #!/usr/bin/env bash
 # Something simple until the logic for this is added to cryptorito
-# This script will  try and show you a picture of the Keybase user in question
+# This script will try and show you a picture of the Keybase user in question
 # and confirm the various proofs which they have setup. It will then pause
 # for confirmation, and then if allowed, and the users primary GPG key
-# is present, will update the trust to full and sign the key.
+# is present, will follow the user, import the public key, update the
+# trust to full, and sign the key. On Darwin, the script will attempt to
+# display the profile photo in the console with imgcat
+# (https://github.com/eddieantonio/imgcat). If imgcat is
+# not found, it will attempt to display the profile in a browser window.
 set -eu
 
 # Quickly and easily exit
@@ -19,10 +23,10 @@ for d in gpg keybase curl jq ; do
     fi
 done
 
-USER="$1"
-if [ -z "$USER" ] ; then
+if [ "$#" != 1 ] ; then
     problems "must specify a Keybase user"
 fi
+USER="$1"
 OS=$(uname -s)
 KB=$(curl -s "https://keybase.io/_/api/1.0/user/lookup.json?usernames=${USER}")
 # Attempt to show a picture. We only know how to do this on a mac.
@@ -56,7 +60,9 @@ if [ -z "$PKEY" ] ; then
     problems "Invalid primary key"
 fi
 if ! gpg --list-keys | grep "$PKEY" &> /dev/null ; then
-    problems "Public key ${PKEY} has not been imported"
+    echo "Public key ${PKEY} has not been imported"
+    keybase follow -y "$USER"
+    keybase pgp pull "$USER"
 fi
 # We make an assumption here that if it's not trusted it's not signed either
 if gpg --list-keys | grep -A 2 "$PKEY" | grep '\[  full  \]' &> /dev/null ; then
