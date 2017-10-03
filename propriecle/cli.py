@@ -45,7 +45,10 @@ def cli_unseal_all():
 def cli_seal_all():
     """Seals every accessible Vault instance"""
     for name in [x['name'] for x in conf.get('vaults')]:
-        seal(get_server(name))
+        if not seal(get_server(name)):
+            sys.exit(1)
+
+    sys.exit(0)
 
 
 def cli_init(name):

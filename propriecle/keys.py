@@ -44,7 +44,9 @@ def list_keys(server):
                     key_obj['key'] = do_decrypt(a_filename)
                     break
 
-        keys.append(key_obj)
+        if key_obj['key'] and key_obj['key'] != '':
+            keys.append(key_obj)
+
         index = index + 1
 
     return keys

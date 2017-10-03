@@ -189,7 +189,9 @@ def refresh_initialized(main_win, server, index, selected):
     """Refreshes the lable for a initialized Vault instance"""
     y, x = main_win.getmaxyx()
     name = server['name']
-    if server['init'] and not server['sealed'] and server['ha']:
+    if server['init'] and \
+       ('sealed' in server and not server['sealed']) and \
+       ('ha' in server and server['ha']):
         c_state = 'S'
         if server['leader']:
             c_state = 'L'

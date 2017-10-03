@@ -4,7 +4,7 @@ test: testenv
 	pylint --rcfile=/dev/null propriecle || true
 	vulture propriecle propriecle.py
 	bandit -r propriecle propriecle.py
-	test -z $(TRAVIS) && (./scripts/integration) || true
+	test -z $(TRAVIS) && ./scripts/integration
 	coverage report -m || true # throws errors when empty
 	coverage erase
 

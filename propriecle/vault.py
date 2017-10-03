@@ -56,7 +56,7 @@ def root_client(server):
     """This is like a normal Vault client but with the root token instead"""
     client = server['client']
     root_token = get_root_token(server)
-    if not root_token:
+    if not root_token or len(root_token) != 36:
         return
     else:
         setattr(client, 'token', root_token)
@@ -71,7 +71,9 @@ def am_root(client):
     """Determines if a vault client is root or not"""
     try:
         token = client.lookup_token()
-    except (hvac.exceptions.VaultDown, requests.exceptions.ReadTimeout):
+    except (hvac.exceptions.VaultDown,
+            requests.exceptions.ReadTimeout,
+            hvac.exceptions.Forbidden):
         return False
 
     if 'data' in token and 'policies' in token['data']:

@@ -46,6 +46,10 @@ function use_fixture() {
 
 function run_propriecle() {
     run coverage run -a --source "${CIDIR}/propriecle" "${CIDIR}/propriecle.py" $@
-    echo "$output"
+    echo "[${status}] $output"
+    if [ -e "propriecle.log" ] ; then
+        cat "propriecle.log"
+        rm "propriecle.log"
+    fi
     [ "$status" -eq 0 ]
 }
